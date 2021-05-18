@@ -1,5 +1,5 @@
 {
-    "name": "symfony/mailjet-mailer",
+    "name": "tattali/mailjet-mailer",
     "type": "symfony-bridge",
     "description": "Symfony Mailjet Mailer Bridge",
     "keywords": [],
