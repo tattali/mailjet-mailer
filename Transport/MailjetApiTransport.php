@@ -22,6 +22,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Symfony\Component\Mailer\Bridge\Mailjet\Transport\MailjetTemplatedEmail;
 
 class MailjetApiTransport extends AbstractApiTransport
 {
@@ -56,10 +57,7 @@ class MailjetApiTransport extends AbstractApiTransport
     protected function doSendApi(SentMessage $sentMessage, Email $email, Envelope $envelope): ResponseInterface
     {
         $response = $this->client->request('POST', sprintf('https://%s/v%s/send', $this->getEndpoint(), self::API_VERSION), [
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
-            'auth_basic' => $this->publicKey.':'.$this->privateKey,
+            'auth_basic' => [$this->publicKey, $this->privateKey],
             'json' => $this->getPayload($email, $envelope),
         ]);
 
@@ -128,28 +126,28 @@ class MailjetApiTransport extends AbstractApiTransport
             $message['Headers'][$header->getName()] = $header->getBodyAsString();
         }
 
-        if ($email instanceof MailjetTemplateEmail) {
+        if ($email instanceof MailjetTemplatedEmail) {
             if ($email->getTemplateId()) {
-                $payload['TemplateLanguage'] = true;
-                $payload['TemplateID'] = $email->getTemplateId();
+                $message['TemplateLanguage'] = true;
+                $message['TemplateID'] = $email->getTemplateId();
             }
 
             if (count($email->getVariables())) {
-                $payload['Variables'] = $email->getVariables();
+                $message['Variables'] = $email->getVariables();
             }
 
             if ($email->getErrorReportingEmail()) {
-                $payload['TemplateErrorReporting'] = array(
+                $message['TemplateErrorReporting'] = array(
                     'Email' => $email->getErrorReportingEmail(),
                 );
             }
 
             if ($email->isTemplateErrorDeliver()) {
-                $payload['TemplateErrorDeliver'] = true;
+                $message['TemplateErrorDeliver'] = true;
             }
 
             if (count($email->getAdditionalProperties())) {
-                $payload = array_merge($payload, $email->getAdditionalProperties());
+                $message = array_merge($message, $email->getAdditionalProperties());
             }
         }
 
