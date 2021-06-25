@@ -29,7 +29,7 @@ class MailjetTemplatedEmail extends Email
         return $this->campaignName;
     }
 
-    public function setCampaignName(int $campaignName): self
+    public function setCampaignName(string $campaignName): self
     {
         $this->campaignName = $campaignName;
 
