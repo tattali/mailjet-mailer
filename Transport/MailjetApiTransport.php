@@ -127,6 +127,10 @@ class MailjetApiTransport extends AbstractApiTransport
         }
 
         if ($email instanceof MailjetTemplatedEmail) {
+            if ($email->getCampaignName()) {
+                $message['CustomCampaign'] = $email->getCampaignName();
+            }
+
             if ($email->getTemplateId()) {
                 $message['TemplateLanguage'] = true;
                 $message['TemplateID'] = $email->getTemplateId();
